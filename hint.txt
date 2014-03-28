@@ -1,0 +1,8 @@
+SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
+FROM subscribers INNER JOIN maillist_to_subscribers ON subscribers.subs_id = maillist_to_subscribers.subscriber_id
+		INNER JOIN maillist ON maillist_to_subscribers.list_id = 2
+
+show_list_id - pokazva sydyrjanieto na daden list. Trqbva da smenim 2-kata s podaden argument
+ot funkciqta(id-to na lista koito iskame da vidim).
+
+
