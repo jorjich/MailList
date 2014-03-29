@@ -8,13 +8,19 @@ ot funkciqta(id-to na lista koito iskame da vidim).
 
 ADD SUBSCRIBER:
 
-SELECT *
+SELECT id
 FROM subscribers
 WHERE name = ? and email = ?
 
 #za da vidim dali daden subscriber e v lista. Ako da :
+to gotnata zaqvka vryshta negoviq id
+
+SELECT list_id
+FROM maillist_to_subscribers
+WHERE subscribesr_id = ? <--tova vryshta spisyka v koito se namira daden subscriber, kato mu podavame izxoda ot gornata zaqvka.Izxoda ot tazi zaqvka e id na list
+
 ili toi e v lista, v koito isakme da go dobavim -> ne pravim nishto
-ili iskame da go dobavim v nov list i pishem slednata zaqvka -> \
+ili iskame da go dobavim v nov list i pishem slednata zaqvka ->
 
 INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
 VALUES (?,?) priema 2 argumenta list_id i subscriber_id
