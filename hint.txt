@@ -33,3 +33,17 @@ WHERE name = ? and email = ? koqto izkarva ID na subscriber-a
 INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
 VALUES (?, ?) koqto primema kato 1-vi argument id na lista, a kato vtori, rezultata ot predishnata zaqvka
 
+CREATE SUBSCRIBER:
+
+proverqvame dali syshtestvuva list s tova ime:
+
+SELECT *
+FROM  maillist
+WHERE name = ?
+
+ako da -> vryshta greshka
+ako nqma -> syzdavame nov list:
+
+INSERT INTO maillist(name)
+VALUES (?)
+
