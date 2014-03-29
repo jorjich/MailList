@@ -6,3 +6,30 @@ show_list_id - pokazva sydyrjanieto na daden list. Trqbva da smenim 2-kata s pod
 ot funkciqta(id-to na lista koito iskame da vidim).
 
 
+ADD SUBSCRIBER:
+
+SELECT *
+FROM subscribers
+WHERE name = ? and email = ?
+
+#za da vidim dali daden subscriber e v lista. Ako da :
+ili toi e v lista, v koito isakme da go dobavim -> ne pravim nishto
+ili iskame da go dobavim v nov list i pishem slednata zaqvka -> \
+
+INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
+VALUES (?,?) priema 2 argumenta list_id i subscriber_id
+
+ako go nqma v lista to pishem slednata zaqvka:
+
+INSERT INTO subscribers(name, email)
+VALUES(?, ?) priema ime i email
+
+sled tova izpylnqvame vtora zaqvka:
+
+SELECT subs_id
+FROM subscribers
+WHERE name = ? and email = ? koqto izkarva ID na subscriber-a 
+
+INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
+VALUES (?, ?) koqto primema kato 1-vi argument id na lista, a kato vtori, rezultata ot predishnata zaqvka
+
