@@ -4,6 +4,7 @@ from maillist_file_adapter import MailListFileAdapter
 from glob import glob
 from os.path import basename
 import sys
+import sqlite3
 
 
 class MailListProgram():
@@ -36,20 +37,36 @@ class MailListProgram():
         self._notify_save(list_id)
 
     def show_lists_callback(self, arguments):
-        for list_id in self.lists:
-            current_list = self.lists[list_id][0]
-            print("[{}] {}".format(list_id,
-                                   current_list.get_name()))
+        # for list_id in self.lists:
+        #     current_list = self.lists[list_id][0]
+        #     print("[{}] {}".format(list_id,
+        #                            current_list.get_name()))
+        conn = sqlite3.connect("mail_list_database.db")
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT * FROM subscribers")
+        for row in result:
+            print(row)
+        conn.close()
 
     def show_list_callback(self, arguments):
-        list_id = int("".join(arguments))
+        # list_id = int("".join(arguments))
 
-        if list_id in self.lists:
-            subscribers = self.lists[list_id][0].get_subscribers()
-            for s in subscribers:
-                print("{} - {}".format(s[0], s[1]))
-        else:
-            print("List with id <{}> was not found".format(list_id))
+        # if list_id in self.lists:
+        #     subscribers = self.lists[list_id][0].get_subscribers()
+        #     for s in subscribers:
+        #         print("{} - {}".format(s[0], s[1]))
+        # else:
+        #     print("List with id <{}> was not found".format(list_id))
+        conn = sqlite3.connect("mail_list_database.db")
+        cursor = conn.cursor()
+        result = cursor.execute('''SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
+                FROM subscribers INNER JOIN maillist_to_subscribers ON subscribers.subs_id = maillist_to_subscribers.subscribesr_id
+                INNER JOIN maillist ON maillist_to_subscribers.list_id = ?''', (arguments))
+        for row in result:
+            print(row)
+        conn.commit()
+        conn.close()
+
 
     def exit_callback(self, arguments):
         sys.exit(0)
