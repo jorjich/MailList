@@ -20,21 +20,62 @@ class MailListProgram():
         self._loop()
 
     def create_list_callback(self, arguments):
-        name = " ".join(arguments)
+        # name = " ".join(arguments)
 
-        maillist = self.factory.create(name)
-        maillist_adapter = MailListFileAdapter(self.db_path, maillist)
-        maillist_adapter.save()
+        # maillist = self.factory.create(name)
+        # maillist_adapter = MailListFileAdapter(self.db_path, maillist)
+        # maillist_adapter.save()
 
-        self.lists[maillist.get_id()] = (maillist, maillist_adapter)
+        # self.lists[maillist.get_id()] = (maillist, maillist_adapter)
+        conn = sqlite3.connect("mail_list_database.db")
+        cursor = conn.cursor()
+        result = cursor.execute('''INSERT INTO maillist(name)
+                                    VALUES (?)''', (arguments))
+        conn.commit()
+        conn.close()
+
 
     def add_subscriber_callback(self, arguments):
-        list_id = int("".join(arguments))
+        # list_id = int("".join(arguments))
+        # name = input("name>")
+        # email = input("email>")
+
+        # self.lists[list_id][0].add_subscriber(name, email)
+        # self._notify_save(list_id)
+        list_id = arguments[0]
+        conn = sqlite3.connect("mail_list_database.db")
+        cursor = conn.cursor()
         name = input("name>")
         email = input("email>")
+        result1 = cursor.execute('''SELECT subs_id
+                                    FROM subscribers
+                                    WHERE name = ? and email = ?''', (name, email))
+        result_from_1st_query = cursor.fetchall()
+        res1 = result_from_1st_query
 
-        self.lists[list_id][0].add_subscriber(name, email)
-        self._notify_save(list_id)
+        if cursor.fetchone() is None:
+            result2 = cursor.execute('''INSERT INTO subscribers(name, email)
+                                        VALUES(?, ?)''', (name, email))
+
+            result3 = cursor.execute('''SELECT subs_id
+                                        FROM subscribers
+                                        WHERE name = ? and email = ?''', (name, email))
+            result_from_3rd_query = cursor.fetchall()
+            res3 = result_from_3rd_query
+
+            result4 = cursor.execute(''' INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
+                                        VALUES (?, ?)''', (list_id, res3))
+        else:
+            result5 = cursor.execute('''SELECT list_id
+                                        FROM maillist_to_subscribers
+                                        WHERE subscribesr_id = ?''', (res1))
+            if int(result5) == list_id:
+                print ("the subscriber is already in that list")
+            else:
+                result6 = cursor.execute('''INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
+                                            VALUES (?,?)''', (list_id, res1) )
+        conn.commit()
+        conn.close()
 
     def show_lists_callback(self, arguments):
         # for list_id in self.lists:
@@ -43,7 +84,7 @@ class MailListProgram():
         #                            current_list.get_name()))
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
-        result = cursor.execute("SELECT * FROM subscribers")
+        result = cursor.execute("SELECT * FROM maillist")
         for row in result:
             print(row)
         conn.close()
@@ -59,6 +100,7 @@ class MailListProgram():
         #     print("List with id <{}> was not found".format(list_id))
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
+
         result = cursor.execute('''SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
                 FROM subscribers INNER JOIN maillist_to_subscribers ON subscribers.subs_id = maillist_to_subscribers.subscribesr_id
                 INNER JOIN maillist ON maillist_to_subscribers.list_id = ?''', (arguments))
