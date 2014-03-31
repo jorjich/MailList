@@ -53,3 +53,8 @@ ako nqma -> syzdavame nov list:
 INSERT INTO maillist(name)
 VALUES (?)
 
+
+CREATE LIST:
+
+INSERT INTO maillist(name)
+VALUES ("new_list")
