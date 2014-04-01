@@ -20,15 +20,26 @@ class MailListProgram():
         self._loop()
 
     def create_list_callback(self, arguments):
-        if arguments == "":
-            print("Invalid listname")
-
-        conn = sqlite3.connect("mail_list_database.db")
-        cursor = conn.cursor()
-        result = cursor.execute('''INSERT INTO maillist(name)
+        if len(str(arguments)) == 4:
+            print("Invalid listname!")
+        else:
+            used_names = self.show_lists_callback("1")
+            new_args = str(arguments)
+            print (new_args[1:-1])
+            for item in used_names:
+                print (used_names)
+            for item in used_names:
+                if new_args[1:-1] == item:
+                    print("asfsdfsaf")
+            if new_args[1:-1] in used_names:
+                print ("There is already a list with that name!")
+            else:
+                conn = sqlite3.connect("mail_list_database.db")
+                cursor = conn.cursor()
+                result = cursor.execute('''INSERT INTO maillist(name)
                                     VALUES (?)''', (arguments))
-        conn.commit()
-        conn.close()
+                conn.commit()
+                conn.close()
 
 
     def add_subscriber_callback(self, arguments):
@@ -71,29 +82,40 @@ class MailListProgram():
         conn.commit()
         conn.close()
 
-    def show_lists_callback(self):
+    def show_lists_callback(self, want_return=0):
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
         list_names = []
+        list_ids = []
         result = cursor.execute("SELECT * FROM maillist")
         for row in result:
-            list_names.append(row[0])
+            list_ids.append(row[0])
+            list_names.append(row[1])
         conn.close()
-        print (want_return)
-        if want_return == "[]":
+        the_wish = len(want_return)
+        if the_wish == 0:
+            for row in range(0, len(list_ids)):
+                print(str(list_ids[row]) + " - " + list_names[row])
+        else:
+            return(list_names)
 
 
     def show_list_callback(self, arguments):
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
 
-        result = cursor.execute('''SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
+        used_names = self.show_lists_callback("1")
+        integer_argument = int(arguments[0])
+        if integer_argument > len(used_names):
+            print ("There is no list with this identifier!")
+        else:
+            result = cursor.execute('''SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
                 FROM subscribers INNER JOIN maillist_to_subscribers ON subscribers.subs_id = maillist_to_subscribers.subscribesr_id
                 INNER JOIN maillist ON maillist_to_subscribers.list_id = ?''', (arguments))
-        for row in result:
-            print(row)
-        conn.commit()
-        conn.close()
+            for row in result:
+                print(row)
+            conn.commit()
+            conn.close()
 
 
     def exit_callback(self, arguments):
