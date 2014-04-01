@@ -25,13 +25,7 @@ class MailListProgram():
         else:
             used_names = self.show_lists_callback("1")
             new_args = str(arguments)
-            print (new_args[1:-1])
-            for item in used_names:
-                print (used_names)
-            for item in used_names:
-                if new_args[1:-1] == item:
-                    print("asfsdfsaf")
-            if new_args[1:-1] in used_names:
+            if new_args[2:-2] in used_names:
                 print ("There is already a list with that name!")
             else:
                 conn = sqlite3.connect("mail_list_database.db")
@@ -95,7 +89,7 @@ class MailListProgram():
         the_wish = len(want_return)
         if the_wish == 0:
             for row in range(0, len(list_ids)):
-                print(str(list_ids[row]) + " - " + list_names[row])
+                print("{" + str(list_ids[row]) + "} " + list_names[row])
         else:
             return(list_names)
 
@@ -109,11 +103,13 @@ class MailListProgram():
         if integer_argument > len(used_names):
             print ("There is no list with this identifier!")
         else:
-            result = cursor.execute('''SELECT DISTINCT subscribers.subs_id, subscribers.name, subscribers.email
+            result = cursor.execute('''SELECT DISTINCT subscribers.name, subscribers.email
                 FROM subscribers INNER JOIN maillist_to_subscribers ON subscribers.subs_id = maillist_to_subscribers.subscribesr_id
                 INNER JOIN maillist ON maillist_to_subscribers.list_id = ?''', (arguments))
+            counter = 1
             for row in result:
-                print(row)
+                print("{" + str(counter) + "} " + str(row[0]) + " - " + str(row[1]) )
+                counter += 1
             conn.commit()
             conn.close()
 
