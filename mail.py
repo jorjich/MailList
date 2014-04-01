@@ -20,13 +20,9 @@ class MailListProgram():
         self._loop()
 
     def create_list_callback(self, arguments):
-        # name = " ".join(arguments)
+        if arguments == "":
+            print("Invalid listname")
 
-        # maillist = self.factory.create(name)
-        # maillist_adapter = MailListFileAdapter(self.db_path, maillist)
-        # maillist_adapter.save()
-
-        # self.lists[maillist.get_id()] = (maillist, maillist_adapter)
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
         result = cursor.execute('''INSERT INTO maillist(name)
@@ -36,12 +32,6 @@ class MailListProgram():
 
 
     def add_subscriber_callback(self, arguments):
-        # list_id = int("".join(arguments))
-        # name = input("name>")
-        # email = input("email>")
-
-        # self.lists[list_id][0].add_subscriber(name, email)
-        # self._notify_save(list_id)
         list_id = arguments[0]
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
@@ -50,54 +40,50 @@ class MailListProgram():
         result1 = cursor.execute('''SELECT subs_id
                                     FROM subscribers
                                     WHERE name = ? and email = ?''', (name, email))
-        result_from_1st_query = cursor.fetchall()
-        res1 = result_from_1st_query
-
-        if cursor.fetchone() is None:
+        final_res = cursor.fetchone()
+        if final_res is None:
+            print(cursor.fetchone())
             result2 = cursor.execute('''INSERT INTO subscribers(name, email)
                                         VALUES(?, ?)''', (name, email))
 
             result3 = cursor.execute('''SELECT subs_id
                                         FROM subscribers
                                         WHERE name = ? and email = ?''', (name, email))
-            result_from_3rd_query = cursor.fetchall()
-            res3 = result_from_3rd_query
+            result_from_3rd_query = cursor.fetchone()
+            res3 = int(result_from_3rd_query[0])
 
             result4 = cursor.execute(''' INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
                                         VALUES (?, ?)''', (list_id, res3))
         else:
+            result_from_1st_query = final_res
+            res1 = int(result_from_1st_query[0])
             result5 = cursor.execute('''SELECT list_id
                                         FROM maillist_to_subscribers
-                                        WHERE subscribesr_id = ?''', (res1))
-            if int(result5) == list_id:
-                print ("the subscriber is already in that list")
+                                        WHERE subscribesr_id = (?)''', str(res1))
+            lists = []
+            for row in result5:
+                lists.append(int(row[0]))
+            if int(list_id) in lists:
+                print ("The subscriber is already in that list")
             else:
                 result6 = cursor.execute('''INSERT INTO maillist_to_subscribers(list_id, subscribesr_id)
                                             VALUES (?,?)''', (list_id, res1) )
         conn.commit()
         conn.close()
 
-    def show_lists_callback(self, arguments):
-        # for list_id in self.lists:
-        #     current_list = self.lists[list_id][0]
-        #     print("[{}] {}".format(list_id,
-        #                            current_list.get_name()))
+    def show_lists_callback(self):
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
+        list_names = []
         result = cursor.execute("SELECT * FROM maillist")
         for row in result:
-            print(row)
+            list_names.append(row[0])
         conn.close()
+        print (want_return)
+        if want_return == "[]":
+
 
     def show_list_callback(self, arguments):
-        # list_id = int("".join(arguments))
-
-        # if list_id in self.lists:
-        #     subscribers = self.lists[list_id][0].get_subscribers()
-        #     for s in subscribers:
-        #         print("{} - {}".format(s[0], s[1]))
-        # else:
-        #     print("List with id <{}> was not found".format(list_id))
         conn = sqlite3.connect("mail_list_database.db")
         cursor = conn.cursor()
 
